@@ -5,9 +5,8 @@ from torchvision import datasets, transforms
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from torch.utils.data import DataLoader
+from config import MODEL_PATH, RESULTS_PATH
 
-MODEL_PATH = "model/image_classifier.pth"
-RESULTS_PATH = "results/metrics.json"
 BATCH_SIZE = 16
 
 def main():
@@ -17,9 +16,10 @@ def main():
     class_names = ckpt["classes"]
 
     weights = MobileNet_V2_Weights.DEFAULT
+
     normalize = transforms.Normalize(
-    mean=[0.485, 0.456, 0.406],
-    std=[0.229, 0.224, 0.225]
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
     )
 
     val_tfms = transforms.Compose([
@@ -38,12 +38,14 @@ def main():
     model.to(device)
     model.eval()
 
-    y_true, y_pred = [], []
+    y_true = []
+    y_pred = []
 
     with torch.no_grad():
         for x, y in val_loader:
             x = x.to(device)
             preds = model(x).argmax(1).cpu()
+
             y_true.extend(y.tolist())
             y_pred.extend(preds.tolist())
 
@@ -55,6 +57,7 @@ def main():
     }
 
     os.makedirs(os.path.dirname(RESULTS_PATH), exist_ok=True)
+
     with open(RESULTS_PATH, "w") as f:
         json.dump(metrics, f, indent=2)
 

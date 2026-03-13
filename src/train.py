@@ -4,18 +4,18 @@ from torchvision import datasets, transforms
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from config import MODEL_PATH
 
-MODEL_PATH = os.getenv("MODEL_PATH", "model/image_classifier.pth")
 EPOCHS = 2
 BATCH_SIZE = 16
 
 def main():
     weights = MobileNet_V2_Weights.DEFAULT
-    normalize = transforms.Normalize(
-    mean=[0.485, 0.456, 0.406],
-    std=[0.229, 0.224, 0.225]
-    )
 
+    normalize = transforms.Normalize(
+        mean=[0.485, 0.456, 0.406],
+        std=[0.229, 0.224, 0.225]
+    )
 
     train_tfms = transforms.Compose([
         transforms.RandomResizedCrop(224),
@@ -55,19 +55,28 @@ def main():
 
     for epoch in range(EPOCHS):
         model.train()
+
         for x, y in train_loader:
             x, y = x.to(device), y.to(device)
+
             optimizer.zero_grad()
-            loss = criterion(model(x), y)
+            outputs = model(x)
+            loss = criterion(outputs, y)
+
             loss.backward()
             optimizer.step()
 
         model.eval()
-        correct = total = 0
+        correct = 0
+        total = 0
+
         with torch.no_grad():
             for x, y in val_loader:
                 x, y = x.to(device), y.to(device)
-                preds = model(x).argmax(1)
+
+                outputs = model(x)
+                preds = outputs.argmax(1)
+
                 correct += (preds == y).sum().item()
                 total += y.size(0)
 
@@ -76,7 +85,9 @@ def main():
 
         if acc > best_acc:
             best_acc = acc
+
             os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+
             torch.save(
                 {
                     "model": model.state_dict(),

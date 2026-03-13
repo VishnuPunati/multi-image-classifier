@@ -8,3 +8,5 @@ scikit-learn==1.4.1.post1
 
 torch==2.1.2+cpu
 torchvision==0.16.2+cpu
+
+python-dotenv==1.0.1

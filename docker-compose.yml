@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   api:
+    container_name: image-classifier-api
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,6 +13,7 @@ services:
     volumes:
       - ./model:/app/model
       - ./results:/app/results
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:${API_PORT}/health"]
       interval: 30s

@@ -1,12 +1,10 @@
 import io
-import os
 import torch
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from PIL import Image
 from torchvision import transforms
 from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
-
-MODEL_PATH = os.getenv("MODEL_PATH", "model/image_classifier.pth")
+from src.config import MODEL_PATH
 
 app = FastAPI()
 
@@ -25,7 +23,7 @@ model.eval()
 normalize = transforms.Normalize(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225]
-    )
+)
 
 transform = transforms.Compose([
     transforms.Resize(256),
@@ -40,8 +38,8 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    if not file:
-        raise HTTPException(status_code=400, detail="No file uploaded")
+    if file.content_type is None or not file.content_type.startswith("image"):
+        raise HTTPException(status_code=400, detail="Invalid image file")
 
     try:
         image_bytes = await file.read()
