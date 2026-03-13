@@ -18,21 +18,16 @@ def clean_dir(path):
 def main():
     random.seed(SEED)
 
-    # Clean old data
     clean_dir(DATA_DIR)
 
-    # Download dataset
     dataset = Caltech101(root=RAW_DIR, download=True)
 
-    # Select first N classes
     classes = dataset.categories[:NUM_CLASSES]
 
-    # Create directory structure
     for split in ["train", "val"]:
         for cls in classes:
             os.makedirs(os.path.join(DATA_DIR, split, cls), exist_ok=True)
 
-    # Split data
     for cls in classes:
         indices = [i for i, y in enumerate(dataset.y)
                    if dataset.categories[y] == cls]
@@ -53,7 +48,7 @@ def main():
             img = img.convert("RGB")  # normalize format
             img.save(os.path.join(DATA_DIR, "val", cls, f"{i}.jpg"))
 
-    print("✅ Dataset preprocessing complete.")
+    print("Dataset preprocessing complete.")
     print(f"Train/Val data saved in '{DATA_DIR}/' directory")
 
 if __name__ == "__main__":

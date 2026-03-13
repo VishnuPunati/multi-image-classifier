@@ -85,7 +85,7 @@ def main():
                 MODEL_PATH
             )
 
-    print("✅ Training finished")
+    print("Training finished")
 
 if __name__ == "__main__":
     main()

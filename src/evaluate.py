@@ -13,11 +13,9 @@ BATCH_SIZE = 16
 def main():
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Load checkpoint
     ckpt = torch.load(MODEL_PATH, map_location=device)
     class_names = ckpt["classes"]
 
-    # Use same normalization as training
     weights = MobileNet_V2_Weights.DEFAULT
     normalize = transforms.Normalize(
     mean=[0.485, 0.456, 0.406],
@@ -34,7 +32,6 @@ def main():
     val_ds = datasets.ImageFolder("data/val", transform=val_tfms)
     val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE)
 
-    # Build model consistently
     model = mobilenet_v2(weights=weights)
     model.classifier[1] = torch.nn.Linear(model.last_channel, len(class_names))
     model.load_state_dict(ckpt["model"])
@@ -61,7 +58,7 @@ def main():
     with open(RESULTS_PATH, "w") as f:
         json.dump(metrics, f, indent=2)
 
-    print("✅ metrics.json generated successfully")
+    print("metrics.json generated successfully")
 
 if __name__ == "__main__":
     main()

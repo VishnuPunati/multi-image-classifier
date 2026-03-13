@@ -12,11 +12,9 @@ app = FastAPI()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Load checkpoint
 checkpoint = torch.load(MODEL_PATH, map_location=device)
 classes = checkpoint["classes"]
 
-# Build model consistently
 weights = MobileNet_V2_Weights.DEFAULT
 model = mobilenet_v2(weights=weights)
 model.classifier[1] = torch.nn.Linear(model.last_channel, len(classes))
@@ -24,7 +22,6 @@ model.load_state_dict(checkpoint["model"])
 model.to(device)
 model.eval()
 
-# Same preprocessing as training
 normalize = transforms.Normalize(
     mean=[0.485, 0.456, 0.406],
     std=[0.229, 0.224, 0.225]
